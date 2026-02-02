@@ -1,0 +1,285 @@
+<!-- ADMIN PANEL COMPONENT -->
+<!-- Add this as a new tab in your index.html -->
+
+<!-- Add this tab button (only show for admin/teacher roles) -->
+<button class="tab-btn" data-tab="admin-panel" id="adminPanelTab" style="display: none;">
+    👨‍💼 Admin Panel
+</button>
+
+<!-- Add this tab content -->
+<div class="tab-content" id="admin-panel">
+    <div class="work-report-section">
+        <div class="section-header">
+            <h2 class="section-title">👨‍💼 Admin Control Panel</h2>
+        </div>
+
+        <!-- Statistics Overview -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">📊 System Statistics</h3>
+            <div class="stats-grid" id="adminStats">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading statistics...
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Data Section -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">💾 Export Data</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                
+                <div class="export-card">
+                    <div class="export-title">📝 Export All Reports</div>
+                    <div class="export-description">Download all daily work reports as CSV</div>
+                    <button class="btn-primary" onclick="exportReports()" style="width: 100%; margin-top: 1rem;">
+                        Download CSV
+                    </button>
+                </div>
+
+                <div class="export-card">
+                    <div class="export-title">👥 Export Users</div>
+                    <div class="export-description">Download all user accounts as CSV</div>
+                    <button class="btn-primary" onclick="exportUsers()" style="width: 100%; margin-top: 1rem;">
+                        Download CSV
+                    </button>
+                </div>
+
+                <div class="export-card">
+                    <div class="export-title">📦 Export Everything</div>
+                    <div class="export-description">Download complete database as JSON</div>
+                    <button class="btn-primary" onclick="exportAll()" style="width: 100%; margin-top: 1rem;">
+                        Download JSON
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div>
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">🔔 Recent Activity</h3>
+            <div id="recentActivity"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Add these styles -->
+<style>
+.export-card {
+    background: var(--surface-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 217, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.export-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+}
+
+.export-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.export-description {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.activity-item {
+    padding: 1rem;
+    background: var(--surface-light);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--accent);
+}
+
+.activity-time {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+</style>
+
+<!-- Add these JavaScript functions -->
+<script>
+// Show admin panel only for admin/teacher
+function checkAdminAccess() {
+    if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher')) {
+        document.getElementById('adminPanelTab').style.display = 'block';
+    }
+}
+
+// Call this after login
+// Add to your existing login success code:
+// checkAdminAccess();
+
+// Load admin statistics
+async function loadAdminStats() {
+    try {
+        const response = await fetch(`${API_URL}/admin/stats`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const stats = await response.json();
+
+        document.getElementById('adminStats').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-value">${stats.totalUsers || 0}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.studentCount || 0}</div>
+                <div class="stat-label">Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.teacherCount || 0}</div>
+                <div class="stat-label">Teachers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.totalBatches || 0}</div>
+                <div class="stat-label">Total Batches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.activeBatches || 0}</div>
+                <div class="stat-label">Active Batches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.totalEnrollments || 0}</div>
+                <div class="stat-label">Total Enrollments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.totalReports || 0}</div>
+                <div class="stat-label">Reports Submitted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.totalHours ? stats.totalHours.toFixed(0) : 0}</div>
+                <div class="stat-label">Total Hours Logged</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.avgHours ? stats.avgHours.toFixed(1) : 0}</div>
+                <div class="stat-label">Avg Hours/Report</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">${stats.recentReports || 0}</div>
+                <div class="stat-label">Reports (Last 7 Days)</div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Failed to load admin stats:', error);
+    }
+}
+
+// Export functions
+async function exportReports() {
+    try {
+        const response = await fetch(`${API_URL}/admin/export/reports`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reports-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Reports exported successfully!', 'success');
+    } catch (error) {
+        showToast('Failed to export reports', 'error');
+    }
+}
+
+async function exportUsers() {
+    try {
+        const response = await fetch(`${API_URL}/admin/export/users`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Users exported successfully!', 'success');
+    } catch (error) {
+        showToast('Failed to export users', 'error');
+    }
+}
+
+async function exportAll() {
+    try {
+        const response = await fetch(`${API_URL}/admin/export/all`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `training-portal-data-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        showToast('Complete database exported successfully!', 'success');
+    } catch (error) {
+        showToast('Failed to export database', 'error');
+    }
+}
+
+// Load recent activity
+async function loadRecentActivity() {
+    try {
+        const response = await fetch(`${API_URL}/reports?limit=10`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const reports = await response.json();
+
+        const container = document.getElementById('recentActivity');
+        
+        if (reports.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-dim);">No recent activity</p>';
+            return;
+        }
+
+        container.innerHTML = reports.map(r => `
+            <div class="activity-item">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <strong style="color: var(--text);">${r.user_name}</strong>
+                    <span class="activity-time">${r.report_date}</span>
+                </div>
+                <div style="color: var(--text-dim); font-size: 0.9rem;">
+                    Submitted report for ${r.batch_name} (${r.hours_worked} hours)
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Failed to load activity:', error);
+    }
+}
+
+// Add to tab switching event listener
+// When admin-panel tab is clicked:
+if (tabName === 'admin-panel') {
+    loadAdminStats();
+    loadRecentActivity();
+}
+
+// Call checkAdminAccess() after successful login in your existing code
+</script>

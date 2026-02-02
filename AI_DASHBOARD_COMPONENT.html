@@ -1,0 +1,372 @@
+<!-- AI_DASHBOARD_COMPONENT.html -->
+<!-- Add this section to your existing index.html inside the main app area -->
+
+<!-- Add this tab button to the tabs section -->
+<button class="tab-btn" data-tab="ai-insights">🤖 AI Insights</button>
+
+<!-- Add this tab content to the tab-content sections -->
+<div class="tab-content" id="ai-insights">
+    <div class="work-report-section">
+        <div class="section-header">
+            <h2 class="section-title">🤖 AI-Powered Insights</h2>
+        </div>
+
+        <!-- Student Progress Analysis -->
+        <div class="ai-section" style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">📊 Your Progress Analysis</h3>
+            <div id="progressAnalysis" class="loading">
+                <div class="spinner"></div>
+                Loading AI analysis...
+            </div>
+        </div>
+
+        <!-- Batch Recommendations -->
+        <div class="ai-section" style="margin-bottom: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">💡 Recommended Batches for You</h3>
+            <div id="batchRecommendations" class="loading">
+                <div class="spinner"></div>
+                Generating recommendations...
+            </div>
+        </div>
+
+        <!-- Completion Predictions (if enrolled) -->
+        <div class="ai-section" id="predictionSection" style="display: none;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">🎯 Completion Predictions</h3>
+            <div id="completionPredictions"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Add these styles to your existing <style> section -->
+<style>
+.ai-section {
+    background: var(--surface-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 217, 255, 0.1);
+}
+
+.progress-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.progress-stat:hover {
+    border-left: 3px solid var(--accent);
+    transform: translateX(5px);
+}
+
+.stat-name {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.performance-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.performance-excellent {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.performance-good {
+    background: rgba(0, 217, 255, 0.2);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.performance-average {
+    background: rgba(255, 193, 7, 0.2);
+    color: var(--warning);
+    border: 1px solid var(--warning);
+}
+
+.performance-needs-improvement {
+    background: rgba(255, 68, 68, 0.2);
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+.recommendation-card {
+    background: var(--surface);
+    padding: 1.25rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--accent);
+    transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(0, 217, 255, 0.2);
+}
+
+.recommendation-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.recommendation-reason {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.recommendation-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+}
+
+.challenge-tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 107, 53, 0.1);
+    border: 1px solid var(--accent-secondary);
+    border-radius: 20px;
+    margin: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.recommendation-list {
+    list-style: none;
+    padding: 0;
+}
+
+.recommendation-list li {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border-left: 3px solid var(--success);
+    color: var(--text-dim);
+    transition: all 0.3s ease;
+}
+
+.recommendation-list li:hover {
+    background: var(--surface-light);
+    transform: translateX(5px);
+}
+
+.prediction-card {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    border: 2px solid rgba(0, 217, 255, 0.2);
+}
+
+.prediction-score {
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.prediction-label {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+</style>
+
+<!-- Add these JavaScript functions to your existing <script> section -->
+<script>
+// AI Features JavaScript
+
+async function loadAIInsights() {
+    if (currentUser.role !== 'student') {
+        document.getElementById('ai-insights').innerHTML = `
+            <div class="work-report-section">
+                <div class="section-header">
+                    <h2 class="section-title">🤖 AI Insights</h2>
+                </div>
+                <p style="text-align: center; color: var(--text-dim); padding: 2rem;">
+                    AI Insights are available for students. Teachers can view class insights in the Reports section.
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    try {
+        // Load progress analysis
+        const progressResponse = await fetch(`${API_URL}/ai/student-analysis`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const progressData = await progressResponse.json();
+        renderProgressAnalysis(progressData);
+
+        // Load batch recommendations
+        const recsResponse = await fetch(`${API_URL}/ai/batch-recommendations`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const recsData = await recsResponse.json();
+        renderBatchRecommendations(recsData);
+
+        // Load completion predictions for enrolled batches
+        const batchesResponse = await fetch(`${API_URL}/my-batches`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        const batches = await batchesResponse.json();
+        if (batches.length > 0) {
+            loadCompletionPredictions(batches);
+        }
+
+    } catch (error) {
+        console.error('Failed to load AI insights:', error);
+        showToast('Failed to load AI insights', 'error');
+    }
+}
+
+function renderProgressAnalysis(data) {
+    const container = document.getElementById('progressAnalysis');
+    
+    if (data.totalReports === 0) {
+        container.innerHTML = `
+            <p style="text-align: center; color: var(--text-dim);">
+                Start submitting daily reports to see your AI-powered progress analysis!
+            </p>
+        `;
+        return;
+    }
+
+    const performanceClass = data.performanceLevel.toLowerCase().replace(/\s+/g, '-');
+    
+    container.innerHTML = `
+        <div class="progress-stat">
+            <span class="stat-name">Total Reports Submitted</span>
+            <span class="stat-value">${data.totalReports}</span>
+        </div>
+        <div class="progress-stat">
+            <span class="stat-name">Average Hours per Day</span>
+            <span class="stat-value">${data.averageHours} hrs</span>
+        </div>
+        <div class="progress-stat">
+            <span class="stat-name">Total Hours Invested</span>
+            <span class="stat-value">${data.totalHours} hrs</span>
+        </div>
+        <div class="progress-stat">
+            <span class="stat-name">Reporting Consistency</span>
+            <span class="stat-value">${data.consistency}%</span>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+            <h4 style="color: var(--text); margin-bottom: 0.75rem;">Performance Level:</h4>
+            <span class="performance-badge performance-${performanceClass}">
+                ${data.performanceLevel}
+            </span>
+        </div>
+
+        ${data.commonChallenges && data.commonChallenges.length > 0 ? `
+            <div style="margin-top: 1.5rem;">
+                <h4 style="color: var(--text); margin-bottom: 0.75rem;">Common Challenges Identified:</h4>
+                <div>
+                    ${data.commonChallenges.map(c => `
+                        <span class="challenge-tag">${c.challenge} (${c.frequency}x)</span>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+
+        <div style="margin-top: 1.5rem;">
+            <h4 style="color: var(--text); margin-bottom: 0.75rem;">AI Recommendations:</h4>
+            <ul class="recommendation-list">
+                ${data.recommendations.map(rec => `<li>💡 ${rec}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+}
+
+function renderBatchRecommendations(recommendations) {
+    const container = document.getElementById('batchRecommendations');
+    
+    if (recommendations.length === 0) {
+        container.innerHTML = `
+            <p style="text-align: center; color: var(--text-dim);">
+                You're enrolled in all available batches! Check back later for new opportunities.
+            </p>
+        `;
+        return;
+    }
+
+    container.innerHTML = recommendations.map(rec => `
+        <div class="recommendation-card">
+            <div class="recommendation-title">${rec.batchName}</div>
+            <div class="recommendation-reason">${rec.reason}</div>
+            <div class="recommendation-meta">
+                <span>📅 Starts: ${rec.startDate}</span>
+                <span>👥 ${rec.availability} spots available</span>
+            </div>
+            <button class="btn-primary" style="margin-top: 0.75rem; padding: 0.5rem 1rem; font-size: 0.9rem;" 
+                    onclick="enrollInBatch(${rec.batchId})">
+                Enroll Now
+            </button>
+        </div>
+    `).join('');
+}
+
+async function loadCompletionPredictions(batches) {
+    const container = document.getElementById('completionPredictions');
+    const section = document.getElementById('predictionSection');
+    section.style.display = 'block';
+
+    let html = '';
+
+    for (const batch of batches) {
+        try {
+            const response = await fetch(`${API_URL}/ai/completion-prediction/${batch.id}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const prediction = await response.json();
+
+            html += `
+                <div class="prediction-card">
+                    <h4 style="color: var(--text); margin-bottom: 0.5rem;">${batch.name}</h4>
+                    <div class="prediction-score">${prediction.completionProbability}%</div>
+                    <div class="prediction-label">${prediction.prediction}</div>
+                    <div style="display: flex; justify-content: space-around; color: var(--text-dim); font-size: 0.9rem;">
+                        <div>📝 ${prediction.reportsSubmitted} reports</div>
+                        <div>⏰ ${prediction.averageHours} avg hrs</div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error(`Failed to load prediction for batch ${batch.id}:`, error);
+        }
+    }
+
+    container.innerHTML = html || '<p style="text-align: center; color: var(--text-dim);">No predictions available yet.</p>';
+}
+
+// Add to the tab switching event listener
+// Find the existing tab-btn click listener and add:
+if (tabName === 'ai-insights') loadAIInsights();
+</script>

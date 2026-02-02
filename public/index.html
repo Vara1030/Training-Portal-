@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Management Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a0e27;
+            --accent: #00d9ff;
+            --accent-secondary: #ff6b35;
+            --surface: #151932;
+            --surface-light: #1e2442;
+            --text: #e8edf4;
+            --text-dim: #8b92a8;
+            --success: #00ff88;
+            --warning: #ffc107;
+            --error: #ff4444;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Login/Register Page */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-box {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 450px;
+            width: 100%;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .auth-tab.active {
+            background: var(--surface-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        header {
+            padding: 2rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 3rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--surface);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            color: var(--error);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--surface);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .tab-btn:hover {
+            background: var(--surface-light);
+            color: var(--text);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: var(--surface-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .batches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .batch-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .batch-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .batch-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .batch-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .batch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .batch-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.25rem;
+        }
+
+        .batch-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .batch-status.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .batch-status.upcoming {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .batch-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--accent);
+        }
+
+        .btn-enroll {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-enroll:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-enroll:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .work-report-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--surface-light);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            background: var(--gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .report-item {
+            background: var(--surface-light);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .report-item:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .report-user {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--accent);
+        }
+
+        .report-date {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .report-content {
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.875rem 1rem;
+            background: var(--surface);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: var(--text);
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border: 2px solid var(--success);
+        }
+
+        .toast.error {
+            border: 2px solid var(--error);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-dim);
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .batches-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .auth-box {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+
+    <!-- Authentication Page -->
+    <div id="authPage" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">
+                <h1>Training Portal</h1>
+                <p style="color: var(--text-dim); margin-top: 0.5rem;">Manage your learning journey</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-auth="login">Login</button>
+                <button class="auth-tab" data-auth="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="regFullName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="regUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="regPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="regRole" required>
+                        <option value="">Select role...</option>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="hidden">
+        <div class="container">
+            <header>
+                <div class="header-content">
+                    <h1>Training Management Portal</h1>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <span id="userName">User</span>
+                        </div>
+                        <button class="btn-logout" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+                <button class="tab-btn" data-tab="batches">All Batches</button>
+                <button class="tab-btn" data-tab="my-batches">My Batches</button>
+                <button class="tab-btn" data-tab="my-report">My Daily Report</button>
+                <button class="tab-btn" data-tab="all-reports">Reports</button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div class="tab-content active" id="dashboard">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading statistics...
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Batches Tab -->
+            <div class="tab-content" id="batches">
+                <div class="filter-bar">
+                    <input type="text" class="filter-input" id="searchBatch" placeholder="Search batches...">
+                    <select class="form-select" id="filterStatus" style="max-width: 200px;">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                </div>
+                <div class="batches-grid" id="allBatches"></div>
+            </div>
+
+            <!-- My Batches Tab -->
+            <div class="tab-content" id="my-batches">
+                <h2 class="section-title" style="margin-bottom: 1.5rem;">My Enrolled Batches</h2>
+                <div class="batches-grid" id="myBatchesList"></div>
+            </div>
+
+            <!-- My Daily Report Tab -->
+            <div class="tab-content" id="my-report">
+                <div class="work-report-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Submit Daily Work Report</h2>
+                    </div>
+                    
+                    <form id="reportForm">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="reportDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Select Batch</label>
+                            <select class="form-select" id="reportBatch" required>
+                                <option value="">Choose a batch...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tasks Completed</label>
+                            <textarea class="form-textarea" id="tasksCompleted" placeholder="Describe the tasks you completed today..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Challenges Faced</label>
+                            <textarea class="form-textarea" id="challenges" placeholder="Any challenges or blockers?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Hours Worked</label>
+                            <input type="number" class="form-input" id="hoursWorked" min="0" max="24" step="0.5" placeholder="8" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-textarea" id="notes" placeholder="Additional notes or comments..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Submit Report</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- All Reports Tab -->
+            <div class="tab-content" id="all-reports">
+                <div class="work-report-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Daily Reports</h2>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <input type="date" class="form-input" id="filterStartDate" placeholder="Start Date" style="max-width: 200px;">
+                        <input type="date" class="form-input" id="filterEndDate" placeholder="End Date" style="max-width: 200px;">
+                        <select class="form-select" id="filterBatch" style="max-width: 300px;">
+                            <option value="">All Batches</option>
+                        </select>
+                        <button class="btn-primary" onclick="loadReports()">Filter</button>
+                    </div>
+
+                    <div class="reports-list" id="reportsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken && currentUser) {
+                showMainApp();
+            } else {
+                showAuthPage();
+            }
+
+            setupAuthEventListeners();
+            setupMainAppEventListeners();
+        });
+
+        function showAuthPage() {
+            document.getElementById('authPage').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            // Update user info
+            document.getElementById('userName').textContent = currentUser.full_name;
+            const initials = currentUser.full_name.split(' ').map(n => n[0]).join('').substring(0, 2);
+            document.getElementById('userAvatar').textContent = initials;
+            
+            // Load data
+            loadStats();
+            loadBatches();
+            loadMyBatches();
+            loadMyBatchesForReport();
+            loadReports();
+        }
+
+        function setupAuthEventListeners() {
+            // Auth tab switching
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const authType = this.dataset.auth;
+                    
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(authType + 'Form').classList.add('active');
+                });
+            });
+
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    const response = await fetch(`${API_URL}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        authToken = data.token;
+                        currentUser = data.user;
+                        localStorage.setItem('authToken', authToken);
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        
+                        showToast('Login successful!', 'success');
+                        showMainApp();
+                    } else {
+                        showToast(data.error || 'Login failed', 'error');
+                    }
+                } catch (error) {
+                    showToast('Connection error. Please try again.', 'error');
+                }
+            });
+
+            // Register form
+            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const userData = {
+                    full_name: document.getElementById('regFullName').value,
+                    username: document.getElementById('regUsername').value,
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPassword').value,
+                    role: document.getElementById('regRole').value
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(userData)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showToast('Registration successful! Please login.', 'success');
+                        document.querySelector('[data-auth="login"]').click();
+                        this.reset();
+                    } else {
+                        showToast(data.error || 'Registration failed', 'error');
+                    }
+                } catch (error) {
+                    showToast('Connection error. Please try again.', 'error');
+                }
+            });
+        }
+
+        function setupMainAppEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(tabName).classList.add('active');
+
+                    // Reload data when switching to certain tabs
+                    if (tabName === 'batches') loadBatches();
+                    if (tabName === 'my-batches') loadMyBatches();
+                    if (tabName === 'all-reports') loadReports();
+                });
+            });
+
+            // Report form
+            document.getElementById('reportForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const reportData = {
+                    batch_id: parseInt(document.getElementById('reportBatch').value),
+                    report_date: document.getElementById('reportDate').value,
+                    tasks_completed: document.getElementById('tasksCompleted').value,
+                    challenges: document.getElementById('challenges').value,
+                    hours_worked: parseFloat(document.getElementById('hoursWorked').value),
+                    notes: document.getElementById('notes').value
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/reports`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(reportData)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showToast('Report submitted successfully!', 'success');
+                        this.reset();
+                        document.getElementById('reportDate').valueAsDate = new Date();
+                    } else {
+                        showToast(data.error || 'Failed to submit report', 'error');
+                    }
+                } catch (error) {
+                    showToast('Connection error. Please try again.', 'error');
+                }
+            });
+
+            // Set today's date
+            document.getElementById('reportDate').valueAsDate = new Date();
+
+            // Batch search
+            document.getElementById('searchBatch').addEventListener('input', function() {
+                loadBatches();
+            });
+
+            document.getElementById('filterStatus').addEventListener('change', function() {
+                loadBatches();
+            });
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/stats`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const stats = await response.json();
+
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalBatches || 0}</div>
+                        <div class="stat-label">Total Batches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.activeBatches || 0}</div>
+                        <div class="stat-label">Active Batches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalEnrollments || 0}</div>
+                        <div class="stat-label">Total Enrollments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalReports || 0}</div>
+                        <div class="stat-label">Reports Submitted</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        async function loadBatches() {
+            const searchTerm = document.getElementById('searchBatch')?.value.toLowerCase() || '';
+            const status = document.getElementById('filterStatus')?.value || 'all';
+            
+            try {
+                const url = `${API_URL}/batches${status !== 'all' ? `?status=${status}` : ''}`;
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                let batches = await response.json();
+
+                // Client-side search
+                if (searchTerm) {
+                    batches = batches.filter(b => 
+                        b.name.toLowerCase().includes(searchTerm) || 
+                        b.instructor_name?.toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                renderBatches('allBatches', batches, true);
+            } catch (error) {
+                console.error('Failed to load batches:', error);
+                showToast('Failed to load batches', 'error');
+            }
+        }
+
+        async function loadMyBatches() {
+            try {
+                const response = await fetch(`${API_URL}/my-batches`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const batches = await response.json();
+                renderBatches('myBatchesList', batches, false);
+            } catch (error) {
+                console.error('Failed to load my batches:', error);
+            }
+        }
+
+        async function loadMyBatchesForReport() {
+            try {
+                const response = await fetch(`${API_URL}/my-batches`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const batches = await response.json();
+                
+                const select = document.getElementById('reportBatch');
+                const filterSelect = document.getElementById('filterBatch');
+                
+                select.innerHTML = '<option value="">Choose a batch...</option>';
+                filterSelect.innerHTML = '<option value="">All Batches</option>';
+                
+                batches.forEach(batch => {
+                    select.innerHTML += `<option value="${batch.id}">${batch.name}</option>`;
+                    filterSelect.innerHTML += `<option value="${batch.id}">${batch.name}</option>`;
+                });
+            } catch (error) {
+                console.error('Failed to load batches for report:', error);
+            }
+        }
+
+        function renderBatches(containerId, batches, showEnrollBtn) {
+            const container = document.getElementById(containerId);
+            
+            if (batches.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 2rem;">No batches found.</p>';
+                return;
+            }
+
+            container.innerHTML = batches.map(batch => `
+                <div class="batch-card">
+                    <div class="batch-header">
+                        <div>
+                            <div class="batch-name">${batch.name}</div>
+                        </div>
+                        <span class="batch-status ${batch.status}">${batch.status}</span>
+                    </div>
+                    <div class="batch-info">
+                        <div class="info-row">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <span>${batch.instructor_name || 'TBA'}</span>
+                        </div>
+                        <div class="info-row">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span>${batch.participant_count} / ${batch.max_participants} Participants</span>
+                        </div>
+                        <div class="info-row">
+                            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>${batch.duration}</span>
+                        </div>
+                    </div>
+                    ${showEnrollBtn && currentUser.role === 'student' ? `
+                        <button class="btn-enroll" onclick="enrollInBatch(${batch.id})" ${batch.participant_count >= batch.max_participants ? 'disabled' : ''}>
+                            ${batch.participant_count >= batch.max_participants ? 'Batch Full' : 'Enroll Now'}
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function enrollInBatch(batchId) {
+            try {
+                const response = await fetch(`${API_URL}/batches/${batchId}/enroll`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showToast('Enrolled successfully!', 'success');
+                    loadBatches();
+                    loadMyBatches();
+                    loadMyBatchesForReport();
+                } else {
+                    showToast(data.error || 'Enrollment failed', 'error');
+                }
+            } catch (error) {
+                showToast('Connection error. Please try again.', 'error');
+            }
+        }
+
+        async function loadReports() {
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const batchId = document.getElementById('filterBatch').value;
+
+            let url = `${API_URL}/reports?limit=50`;
+            if (startDate) url += `&start_date=${startDate}`;
+            if (endDate) url += `&end_date=${endDate}`;
+            if (batchId) url += `&batch_id=${batchId}`;
+
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const reports = await response.json();
+                renderReports(reports);
+            } catch (error) {
+                console.error('Failed to load reports:', error);
+                showToast('Failed to load reports', 'error');
+            }
+        }
+
+        function renderReports(reports) {
+            const container = document.getElementById('reportsList');
+            
+            if (reports.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-dim); padding: 2rem;">No reports found.</p>';
+                return;
+            }
+
+            container.innerHTML = reports.map(report => `
+                <div class="report-item">
+                    <div class="report-header">
+                        <span class="report-user">${report.user_name}</span>
+                        <span class="report-date">${report.report_date}</span>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <strong style="color: var(--accent);">Batch:</strong> ${report.batch_name}
+                    </div>
+                    <div class="report-content">
+                        <p><strong>Tasks Completed:</strong> ${report.tasks_completed}</p>
+                        ${report.challenges ? `<p><strong>Challenges:</strong> ${report.challenges}</p>` : ''}
+                        <p><strong>Hours Worked:</strong> ${report.hours_worked} hours</p>
+                        ${report.notes ? `<p><strong>Notes:</strong> ${report.notes}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            authToken = null;
+            currentUser = null;
+            showAuthPage();
+            showToast('Logged out successfully', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
